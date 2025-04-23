@@ -5,7 +5,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 
-
 public class RacerApp extends JFrame implements ActionListener {
 
     // UI components
@@ -103,7 +102,7 @@ public class RacerApp extends JFrame implements ActionListener {
         int luck = Integer.parseInt(luckField.getText());
 
         int total = speed + recovery + luck;
-        
+
         if (total < 10) {
             JOptionPane.showMessageDialog(this, "You must allocate all 10 points before adding a racer!", "Not enough points", JOptionPane.WARNING_MESSAGE);
             return;
