@@ -12,15 +12,19 @@ public class RacerApp extends JFrame implements ActionListener {
     private JButton addButton;
     private JTextArea outputArea;
     private JLabel pointsLeftLabel;
-
+    private JButton startRaceButton;
 
     // List to store racers
-    private ArrayList<Racer> racers = new ArrayList<>();
+    public ArrayList<Racer> racers = new ArrayList<>();
+    private ArrayList<JProgressBar> racerBars = new ArrayList<>();
+    private ArrayList<JLabel> racerLabels = new ArrayList<>();
+
 
     public RacerApp() {
+
         // Frame settings
         setTitle("Racer Creator");
-        setSize(400, 400);
+        setSize(700, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(6, 2));
 
@@ -30,17 +34,17 @@ public class RacerApp extends JFrame implements ActionListener {
         add(nameField);
 
         //Speed label and field
-        add(new JLabel("Speed:"));
+        add(new JLabel("Speed: (Increases how far the racer moves each turn)"));
         speedField = new JTextField();
         add(speedField);
 
         //Recovery label and field
-        add(new JLabel("Recovery:"));
+        add(new JLabel("Recovery: (Lowers the time between turns)"));
         recoveryField = new JTextField();
         add(recoveryField);
 
         //Luck label and field
-        add(new JLabel("Luck:"));
+        add(new JLabel("Luck: (Increases the chance to get a boost each turn)"));
         luckField = new JTextField();
         add(luckField);
 
@@ -62,15 +66,17 @@ public class RacerApp extends JFrame implements ActionListener {
         JScrollPane scrollPane = new JScrollPane(outputArea);
         add(scrollPane);
 
+        //Button to start race
+        startRaceButton = new JButton("Start Race");
+        startRaceButton.addActionListener(this);
+        add(startRaceButton);
 
         setVisible(true);
 
         setupPointListeners();
-
     }
 
     private void setupPointListeners() {
-
         DocumentListener listener = new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { updatePointsLeft(); }
             public void removeUpdate(DocumentEvent e) { updatePointsLeft(); }
@@ -95,58 +101,86 @@ public class RacerApp extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Read values from text fields
-        String name = nameField.getText();
-        int speed = Integer.parseInt(speedField.getText());
-        int recovery = Integer.parseInt(recoveryField.getText());
-        int luck = Integer.parseInt(luckField.getText());
+        if (e.getSource() == addButton) {
 
-        int total = speed + recovery + luck;
+            String name = nameField.getText();
+            if (name.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter a name for the racer.", "Missing Name", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
-        if (total < 10) {
-            JOptionPane.showMessageDialog(this, "You must allocate all 10 points before adding a racer!", "Not enough points", JOptionPane.WARNING_MESSAGE);
-            return;
-        } else if (total > 10) {
-            JOptionPane.showMessageDialog(this, "You can only allocate up to 10 points total!", "Too many points", JOptionPane.ERROR_MESSAGE);
-            return;
+            int speed = Integer.parseInt(speedField.getText());
+            int recovery = Integer.parseInt(recoveryField.getText());
+            int luck = Integer.parseInt(luckField.getText());
+
+            int total = speed + recovery + luck;
+
+            if (total < 10) {
+                JOptionPane.showMessageDialog(this, "You must allocate all 10 points before adding a racer!", "Not enough points", JOptionPane.WARNING_MESSAGE);
+                return;
+            } else if (total > 10) {
+                JOptionPane.showMessageDialog(this, "You can only allocate up to 10 points total!", "Too many points", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Racer newRacer = new Racer(name, speed, recovery, luck);
+            racers.add(newRacer);
+
+            outputArea.setText(""); // clear previous
+            for (Racer r : racers) {
+                outputArea.append(r + "\n");
+            }
+
+            // Clear input fields
+            nameField.setText("");
+            speedField.setText("");
+            recoveryField.setText("");
+            luckField.setText("");
+
+        } else if (e.getSource() == startRaceButton) {
+            openRaceWindow();
         }
-        
+    }
 
-        // Create new racer and add to list
-        Racer newRacer = new Racer(name, speed, recovery, luck);
-        racers.add(newRacer);
+    private void openRaceWindow() {
+        JFrame raceFrame = new JFrame("Race in Progress");
+        raceFrame.setSize(600, 400);
+        raceFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        raceFrame.setLayout(new BorderLayout());
 
-        // Show all racers
-        outputArea.setText(""); // clear previous
-        for (Racer r : racers) {
-            outputArea.append(r + "\n");
+        if (racers.isEmpty()) {
+            JTextArea raceText = new JTextArea("No racers added yet!");
+            raceText.setEditable(false);
+            raceFrame.add(new JScrollPane(raceText), BorderLayout.CENTER);
+        } else {
+            JPanel racePanel = new JPanel();
+            racePanel.setLayout(new GridLayout(racers.size(), 2)); // 2 columns
+            // 2 columns: first for name, second for progress bar
+
+            for (Racer r : racers) {
+                JLabel nameLabel = new JLabel(r.getName());
+                JProgressBar progressBar = new JProgressBar(0, 100);
+                progressBar.setStringPainted(true);
+
+                racePanel.add(nameLabel);     // Name on the left
+                racePanel.add(progressBar);   // Bar on the right
+
+                r.setProgressBar(progressBar);
+
+                Thread t = new Thread(r);
+                t.start();
+            }
+
+            raceFrame.add(new JScrollPane(racePanel), BorderLayout.CENTER);
         }
 
-        // Clear input fields
-        nameField.setText("");
-        speedField.setText("");
-        recoveryField.setText("");
-        luckField.setText("");
+        raceFrame.setVisible(true);
     }
 
     public static void main(String[] args) {
-        new RacerApp(); // run the app
+        SwingUtilities.invokeLater(() -> {
+            new RacerApp();
+        });
     }
-}
-
-// Racer class
-class Racer {
-    private String name;
-    private int speed, recovery, luck;
-
-    public Racer(String name, int speed, int recovery, int luck) {
-        this.name = name;
-        this.speed = speed;
-        this.recovery = recovery;
-        this.luck = luck;
-    }
-
-    public String toString() {
-        return name + " (Speed: " + speed + ", Recovery: " + recovery + ", Luck: " + luck + ")";
-    }
+    
 }

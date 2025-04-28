@@ -1,3 +1,6 @@
 public class Main {
-    //jihsfnosdokko
+    public static void main(String[] args) {
+        RacerApp app = new RacerApp();
+        app.setVisible(true);
+    }
 }
