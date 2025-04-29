@@ -2,6 +2,7 @@ import javax.swing.*;
 
 public class Racer implements Runnable {
 
+    // Racer attributes
     private String name;
     private int speed;
     private int recovery;
@@ -10,6 +11,7 @@ public class Racer implements Runnable {
 
     private JProgressBar progressBar; // the progress bar this racer updates
 
+    // Constructor for Racer
     public Racer(String name, int speed, int recovery, int luck) {
         this.name = name;
         this.speed = speed;
@@ -17,38 +19,50 @@ public class Racer implements Runnable {
         this.luck = luck;
     }
 
+    //returns the name of the racer (used for the label)
     public String getName() {
         return name;
     }
 
+    //methiod to set the progress bar
     public void setProgressBar(JProgressBar progressBar) {
         this.progressBar = progressBar;
     }
 
+    //run method for the thread
     public void run() {
+
+        //print the name of the racer
         System.out.println(name + " started racing!");
 
+        // Loop until the racer reaches the finish line (100)
         while (position < 100) {
             try {
+
+                //the amount the racer moves is based on the speed
                 int move = speed;
 
-                int luckChance = (int)(Math.random() * 100);
-                if (luckChance < luck * 10) {
+                // Random chance to get an extra move based on luck
+                int luckChance = (int)(Math.random() * 100); // Random number between 0 and 100
+                if (luckChance < luck * 10) { //if the random number is less than the luck * 10 (more luck = more chance)
                     move += 2; // extra move if lucky
                     System.out.println(name + " got lucky! Boosted ahead.");
                 }
 
-                position += move;
+                position += move; //update the position 
 
+                //makes sure the racer doesnt go over 100
                 if (position > 100) {
                     position = 100;
                 }
 
+                //Print the current position of the racer
                 System.out.println(name + " is at position: " + position);
 
+                // Update the progress bar
                 SwingUtilities.invokeLater(() -> {
                     if (progressBar != null) {
-                        progressBar.setValue(position);
+                        progressBar.setValue(position); //sets the value of the progress bar to the position
                     }
                 });
                 
@@ -71,7 +85,7 @@ public class Racer implements Runnable {
         
     }
 
-    @Override
+    //toString method to print the racer in the output area
     public String toString() {
         return name + " (Speed: " + speed + ", Recovery: " + recovery + ", Luck: " + luck + ")";
     }
