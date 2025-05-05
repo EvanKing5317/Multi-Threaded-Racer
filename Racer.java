@@ -4,9 +4,9 @@ public class Racer implements Runnable {
 
     // Racer attributes
     private String name;
-    private int speed;
-    private int recovery;
-    private int luck;
+    private int speed = 1;
+    private int recovery = 1;
+    private int luck = 1;
     private int position = 0;
 
     private JProgressBar progressBar; // the progress bar this racer updates
@@ -23,12 +23,20 @@ public class Racer implements Runnable {
     public String getName() {
         return name;
     }
-
+    
     //methiod to set the progress bar
     public void setProgressBar(JProgressBar progressBar) {
         this.progressBar = progressBar;
     }
 
+    //Reset the racer's position and progress bar
+    public void reset() {
+        position = 0;
+        if (progressBar != null) {
+            progressBar.setValue(0);
+        }
+    }
+    
     //run method for the thread
     public void run() {
 
@@ -40,7 +48,8 @@ public class Racer implements Runnable {
             try {
 
                 //the amount the racer moves is based on the speed
-                int move = speed;
+                int move = 1 + (int)(0.25 * speed);
+;
 
                 // Random chance to get an extra move based on luck
                 int luckChance = (int)(Math.random() * 100); // Random number between 0 and 100
@@ -66,8 +75,9 @@ public class Racer implements Runnable {
                     }
                 });
                 
-
-                Thread.sleep(300 - recovery * 20); // Faster updates if better recovery
+                // Sleep for a time based on the recovery attribute
+                int sleepTime = Math.max(100, 300 - recovery * 25); // Never less than 100ms
+                Thread.sleep(sleepTime);
 
             } catch (InterruptedException e) {
                 System.out.println(name + " was interrupted!");

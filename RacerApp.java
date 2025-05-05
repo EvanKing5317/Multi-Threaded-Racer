@@ -147,7 +147,21 @@ public class RacerApp extends JFrame implements ActionListener {
             luckField.setText("");
 
         } else if (e.getSource() == startRaceButton) { //if the start button is clicked
+
+            // Check if there are enough racers
+            if (racers.size() < 2 || racers.size() > 6) {
+                JOptionPane.showMessageDialog(this, "You must have between 2 and 6 racers to start the race.", "Invalid Racer Count", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            //resest the race
+            for (Racer r : racers) {
+                r.reset(); //reset the racer
+            }
+            
+
             openRaceWindow(); //start the race
+
         }
     }
 
@@ -168,7 +182,7 @@ public class RacerApp extends JFrame implements ActionListener {
         for (Racer r : racers) {
             JLabel nameLabel = new JLabel(r.getName()); //set label with the racer's name
             JProgressBar progressBar = new JProgressBar(0, 100); //make a progress bar to represent the racing
-            progressBar.setStringPainted(true);
+            progressBar.setStringPainted(false);
 
             racePanel.add(nameLabel);// Name on the left
             racePanel.add(progressBar);// Bar on the right
