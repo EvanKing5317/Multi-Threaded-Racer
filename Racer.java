@@ -49,8 +49,7 @@ public class Racer implements Runnable {
 
                 //the amount the racer moves is based on the speed
                 int move = 1 + (int)(0.25 * speed);
-;
-
+                
                 // Random chance to get an extra move based on luck
                 int luckChance = (int)(Math.random() * 100); // Random number between 0 and 100
                 if (luckChance < luck * 10) { //if the random number is less than the luck * 10 (more luck = more chance)

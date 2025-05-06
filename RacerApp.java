@@ -159,7 +159,6 @@ public class RacerApp extends JFrame implements ActionListener {
                 r.reset(); //reset the racer
             }
             
-
             openRaceWindow(); //start the race
 
         }
